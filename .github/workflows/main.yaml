@@ -86,9 +86,17 @@ jobs:
         run: |
          docker pull ${{secrets.AWS_ECR_LOGIN_URI}}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
          
+
       - name: Stop and remove container if running
         run: |
-         docker ps -q --filter "name=cicdapp" | grep -q . && docker stop cicdapp && docker rm -fv cicdapp
+          CONTAINER_ID=$(docker ps -q --filter "name=cicdapp")
+          if [ ! -z "$CONTAINER_ID" ]; then
+           docker stop cicdapp
+           docker rm -fv cicdapp
+          else
+            echo "No container named cicdapp is running."
+          fi
+
        
       - name: Run Docker Image to serve users
         run: |
